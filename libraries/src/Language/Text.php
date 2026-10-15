@@ -9,6 +9,8 @@
 
 namespace Joomla\CMS\Language;
 
+use Joomla\CMS\Application\CMSWebApplicationInterface;
+use Joomla\CMS\Document\Document;
 use Joomla\CMS\Factory;
 
 // phpcs:disable PSR1.Files.SideEffects
@@ -68,7 +70,7 @@ class Text
         $lang = Factory::getLanguage();
 
         if ($script) {
-            static::$strings[$string] = $lang->_($string, $jsSafe, $interpretBackSlashes);
+            self::addScriptString($string, $lang->_($string, $jsSafe, $interpretBackSlashes));
 
             return $string;
         }
@@ -124,7 +126,7 @@ class Text
 
         if ($script) {
             foreach ($string_parts as $str) {
-                static::$strings[$str] = $str;
+                self::addScriptString($str, $str);
             }
         }
 
@@ -220,7 +222,7 @@ class Text
             );
 
             if (\array_key_exists('script', $args[$count - 1]) && $args[$count - 1]['script']) {
-                static::$strings[$key] = \call_user_func_array('sprintf', $args);
+                self::addScriptString($key, \call_user_func_array('sprintf', $args));
 
                 return $key;
             }
@@ -266,7 +268,7 @@ class Text
             );
 
             if (\array_key_exists('script', $args[$count - 1]) && $args[$count - 1]['script']) {
-                static::$strings[$string] = \call_user_func_array('sprintf', $args);
+                self::addScriptString($string, \call_user_func_array('sprintf', $args));
 
                 return $string;
             }
@@ -350,25 +352,41 @@ class Text
 
         // Add the string to the array if not null.
         if ($string !== null) {
-            $app = Factory::getApplication();
-            $doc = $app->getDocument();
-
-            // Get previously added strings
-            $strings = $doc->getScriptOptions('joomla.jtext');
+            $doc = Factory::getApplication()->getDocument();
 
             // Normalize the key and translate the string.
-            $key                   = strtoupper($string);
-            $strings[$key]         = Factory::getLanguage()->_($string, $jsSafe, $interpretBackSlashes);
-            static::$strings[$key] = $strings[$key];
-
-            // Load core.js dependency
-            $doc->getWebAssetManager()->useScript('core');
-
-            // Update Joomla.Text script options
-            $doc->addScriptOptions('joomla.jtext', $strings, false);
+            self::addScriptString(strtoupper($string), Factory::getLanguage()->_($string, $jsSafe, $interpretBackSlashes), $doc);
         }
 
         return static::getScriptStrings();
+    }
+
+    /**
+     * Store a translated JavaScript string in the document options and legacy store.
+     *
+     * @param   string         $key       The translation key.
+     * @param   string         $string    The translated string.
+     * @param   Document|null  $document  The document, or null to use the current web application's document.
+     *
+     * @return  void
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private static function addScriptString($key, $string, ?Document $document = null): void
+    {
+        static::$strings[$key] = $string;
+
+        // Language-only and console callers can continue using the legacy store without a document.
+        if ($document === null && Factory::$application instanceof CMSWebApplicationInterface) {
+            $document = Factory::$application->getDocument();
+        }
+
+        if ($document === null) {
+            return;
+        }
+
+        $document->getWebAssetManager()->useScript('core');
+        $document->addScriptOptions('joomla.jtext', [$key => $string]);
     }
 
     /**
