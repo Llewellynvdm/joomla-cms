@@ -170,11 +170,13 @@ class HtmlDocument extends Document implements CacheControllerFactoryAwareInterf
         $data['script']        = $this->_script;
         $data['custom']        = $this->_custom;
 
-        /**
-         * @deprecated  4.0 will be removed in 7.0
-         *              This property is for backwards compatibility. Pass text through script options in the future
-         */
-        $data['scriptText']    = Text::getScriptStrings();
+        if (\defined('COMPAT_JOOMLA_7')) {
+            /**
+             * @deprecated  4.0 will be removed in 8.0
+             *              Only available in compatibility mode. Pass text through script options instead.
+             */
+            $data['scriptText'] = Text::getScriptStrings();
+        }
 
         $data['scriptOptions'] = $this->scriptOptions;
 
