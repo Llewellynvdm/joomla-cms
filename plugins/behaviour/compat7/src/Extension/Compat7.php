@@ -10,6 +10,7 @@
 
 namespace Joomla\Plugin\Behaviour\Compat7\Extension;
 
+use Joomla\CMS\Editor\Button\Button;
 use Joomla\CMS\Event\Application\AfterInitialiseDocumentEvent;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\Priority;
@@ -78,6 +79,12 @@ final class Compat7 extends CMSPlugin implements SubscriberInterface
          */
         if ($this->params->get('legacy_classes', '1')) {
             \JLoader::registerNamespace('\\Joomla\\CMS', JPATH_PLUGINS . '/behaviour/compat7/classes');
+
+            // Composer can load the core Button, so select its compatibility implementation before the first use.
+            // A class loaded before this plugin (for example by preloading) cannot be replaced.
+            if (!class_exists(Button::class, false)) {
+                require_once JPATH_PLUGINS . '/behaviour/compat7/classes/Editor/Button/Button.php';
+            }
         }
 
         /**

@@ -37,7 +37,7 @@ $onclick = $button->get('onclick') ? ' onclick="' . $button->get('onclick') . '"
 $title   = $button->get('title') ? $button->get('title') : $button->get('text', '');
 $icon    = $button->get('icon');
 $action  = $button->get('action', '');
-$options = (array) $button->get('options');
+$options = $button->getOptions();
 
 // Correct the link, check for legacy with &amp; in it, and prepend a base Uri
 if ($link && $link[0] !== '#') {

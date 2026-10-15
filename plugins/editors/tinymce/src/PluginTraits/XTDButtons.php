@@ -58,7 +58,7 @@ trait XTDButtons
             $icon    = $button->get('icon');
             $link    = $button->get('link');
             $action  = $button->get('action', '');
-            $options = (array) $button->get('options');
+            $options = $button->getOptions();
 
             $btnAsset = 'editor-button.' . $button->getButtonName();
 
@@ -100,9 +100,9 @@ trait XTDButtons
 
             if ($legacyModal) {
                 $coreButton['bsModal'] = true;
-                $coreButton['id']      = $editorId . '_' . $button->name;
+                $coreButton['id']      = $editorId . '_' . $button->get('name');
 
-                $button->id = $editorId . '_' . $button->name . '_modal';
+                $button->set('id', $editorId . '_' . $button->get('name') . '_modal');
 
                 echo LayoutHelper::render('joomla.editors.buttons.modal', $button);
             }

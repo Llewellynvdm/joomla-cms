@@ -31,7 +31,7 @@ $options  = $button->getOptions();
 
 $confirm = '';
 
-if (is_array($button->get('options')) && isset($options['confirmText']) && isset($options['confirmCallback'])) {
+if (isset($options['confirmText']) && isset($options['confirmCallback'])) {
     $confirm = '<button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="' . $options['confirmCallback'] . '">'
         . $options['confirmText'] . ' </button>';
 }
