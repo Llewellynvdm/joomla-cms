@@ -699,12 +699,27 @@ class HtmlDocument extends Document implements CacheControllerFactoryAwareInterf
      *
      * @since   1.7.0
      *
-     * @deprecated  4.4 will be removed in 7.0
+     * @deprecated  4.4 will be removed in 8.0
      *              Load the active menu item directly and count the children with the php count function
      *              `$children = count($app->getMenu()->getActive()->getChildren())` beware getActive could be `null`
      */
     public function countMenuChildren()
     {
+        if (!\defined('COMPAT_JOOMLA_7')) {
+            throw new \BadMethodCallException(\sprintf(
+                '%1$s() is only available in compatibility mode (compatibility plugin enabled). Load the active menu item directly and count its children.',
+                __METHOD__
+            ));
+        }
+
+        @trigger_error(
+            \sprintf(
+                '%1$s() is deprecated. Load the active menu item directly and count its children.',
+                __METHOD__
+            ),
+            E_USER_DEPRECATED
+        );
+
         $active = CmsFactory::getApplication()->getMenu()->getActive();
 
         return $active ? \count($active->getChildren()) : 0;
